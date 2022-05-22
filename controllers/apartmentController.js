@@ -6,21 +6,23 @@ import Apartment from "../models/apartment.js";
 // @route   POST /api/apartment/add
 // @access  Private
 export const addApartment = asyncHandler(async (req, res) => {
-  const { size, rooms, address, rent, deposit } = req.body;
+  const { name, size, rooms, address, rent, deposit } = req.body;
 
   const errorList = [];
 
+  if (!name) errorList.push("Name is required!");
   if (!size) errorList.push("Apartment size is required!");
   if (!rooms) errorList.push("Room number is required!");
   if (!address) errorList.push("Address is required!");
   if (!rent) errorList.push("Rent amount is required!");
   if (!deposit) errorList.push("Diposit is required!");
 
-  if (!size || !rooms || !address || !rent || !deposit)
+  if (!name || !size || !rooms || !address || !rent || !deposit)
     res.status(400).json({ data: errorList });
 
   const createdApartment = await Apartment.create({
     owner: req.user.id,
+    name,
     rooms,
     size,
     rent,
@@ -35,10 +37,11 @@ export const addApartment = asyncHandler(async (req, res) => {
 // @route   POST /api/apartment/update
 // @access  Private
 export const updateApartment = asyncHandler(async (req, res) => {
-  const { id, size, rooms, address, rent, deposit } = req.body;
+  const { id, name, size, rooms, address, rent, deposit } = req.body;
 
   const errorList = [];
 
+  if (!name) errorList.push("Name is required!");
   if (!id) errorList.push("Id is required!");
   if (!size) errorList.push("Apartment size is required!");
   if (!rooms) errorList.push("Room number is required!");
@@ -46,7 +49,7 @@ export const updateApartment = asyncHandler(async (req, res) => {
   if (!rent) errorList.push("Rent amount is required!");
   if (!deposit) errorList.push("Diposit is required!");
 
-  if (!id || !size || !rooms || !address || !rent || !deposit)
+  if (!id || !name || !size || !rooms || !address || !rent || !deposit)
     res.status(400).json({ data: errorList });
 
   const apt = await Apartment.findById(id);
@@ -54,9 +57,10 @@ export const updateApartment = asyncHandler(async (req, res) => {
   if (!apt) res.status(400).json({ data: "Apartment doesn't exists!" });
 
   // check for oz user
-  // if (apt.owner !== req.user.id)
-  //   res.status(400).json({ data: "Something went wrong!" });
+  if (apt.owner._id.toString() !== req.user.id)
+    res.status(400).json({ data: "Something went wrong!" });
 
+  apt.name = name;
   apt.rooms = rooms;
   apt.size = size;
   apt.rent = rent;
@@ -64,7 +68,7 @@ export const updateApartment = asyncHandler(async (req, res) => {
   apt.deposit = deposit;
   apt.save();
 
-  res.status(200).json({ data: "Recored update successfully!" });
+  res.status(200).json({ data: "Recored updated successfully!" });
 });
 
 // @desc    Delete apartment
@@ -81,7 +85,6 @@ export const deleteApartment = asyncHandler(async (req, res) => {
 
   res.status(200).json({ data: "Recored deleted successfully" });
 });
-
 
 // @desc    Get All Apartments
 // @route   POST /api/apartment/all

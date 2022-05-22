@@ -40,7 +40,7 @@ export const signin = asyncHandler(async (req, res) => {
 // @route   POST /api/users/signup
 // @access  Public
 export const signup = asyncHandler(async (req, res) => {
-  const { email, password, firstName, lastName } = req.body;
+  const { phoneNumber, email, password, firstName, lastName } = req.body;
 
   console.log(email, password, firstName, lastName);
 
@@ -61,6 +61,7 @@ export const signup = asyncHandler(async (req, res) => {
   // create new user with hashed password
   const result = await User.create({
     email,
+    phoneNumber,
     name: `${firstName} ${lastName}`,
     password: hashedPassword,
   });
